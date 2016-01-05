@@ -1,57 +1,48 @@
-<h1> todo </h1>
+<h1>TaS list/h1>
 <hr>
 
-<ul></ul>
+<ul>
+    <li ng-repeat="task in tasks">
+        {{task.title}}
+    </li>
+</ul>
 
 <hr>
 <form action="/task/create" method="POST">
-    <input type="text" name="title" placeholder="愛你卡萌">
-    <input type="submit" value="我愛卡萌">
+    <input type="text" name="title" placeholder="請填入您的大名">
+    <input type="submit" value="加入">
 </form>
 
-
+<script src="
+https://ajax.googleapis.com/ajax/libs/angularjs/1.2.29/angular.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.js"> </script>
 
 <script>
+function taskController($scope) {
 
-$.get(" /task", function (result) {
-    var tempHtml= "";
-    console.log(result);
+        io.socket.on("connect", function () {
+          io.socket.get("/task", function (tasks) {
+          
+            $scope.tasks = tasks;
+            $scope.$apply();
+        });
+    });
+}
+
+
+$("form").on("submit", function (e) {
+
+    $.post("/task/create", {
+        title: $("input[name=title]").val()
+    },function (result) {
+        window.location.reload();
+    })
     
-    for(var i=0;i<result.length; i++){
-        tempHtml = tempHtml + "<li>" + result[i].title + "</li>";
-    }
-    
-    $("ul").html(tempHtml);
-    
+    return false;
 });
 
-$("form").on("submit" , function (e) {
-    $.post("/task/create",{
-        title: $("input[name=title]").val()
-        }, function (result){
-            window.location.reload();
-        })
-        
-        return false;
-    });
+
 </script>
-     for(var i=0;i<result.length; i++){
-        tempHtml = tempHtml + "<li>"+
-        "<button class='delete'data-id='" +
-        result[i].id  +
-        "'>Delete   </button>  "
-        + result[i].title + "</li>";
-    }
-    
-    $("ul").html(tempHtml);
-    
-    $("button.delete").on("click",function (e) {
-      
-       $.get("/task/destroy/" + $(this).data("id") , function()
-       
-       {
-        window.location.reload();
-        });
-     });
-  });
+
+
+
